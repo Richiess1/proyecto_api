@@ -1,34 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import { OrdenesService } from './ordenes.service';
-import { CreateOrdeneDto } from './dto/create-ordene.dto';
-import { UpdateOrdeneDto } from './dto/update-ordene.dto';
+import { CreateOrdenDto } from './dto/create-orden.dto';
+import { Orden } from './entities/orden.entity';
 
 @Controller('ordenes')
 export class OrdenesController {
   constructor(private readonly ordenesService: OrdenesService) {}
 
   @Post()
-  create(@Body() createOrdeneDto: CreateOrdeneDto) {
-    return this.ordenesService.create(createOrdeneDto);
+  create(@Body() dto: CreateOrdenDto): Promise<Orden> {
+    return this.ordenesService.create(dto);
   }
 
   @Get()
-  findAll() {
+  findAll(): Promise<Orden[]> {
     return this.ordenesService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ordenesService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrdeneDto: UpdateOrdeneDto) {
-    return this.ordenesService.update(+id, updateOrdeneDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.ordenesService.remove(+id);
   }
 }

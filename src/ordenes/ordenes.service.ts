@@ -1,26 +1,48 @@
-import { Injectable } from '@nestjs/common';
-import { CreateOrdeneDto } from './dto/create-ordene.dto';
-import { UpdateOrdeneDto } from './dto/update-ordene.dto';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Orden } from './entities/orden.entity';
+import { CreateOrdenDto } from './dto/create-orden.dto';
+import { Cliente } from '../clientes/entities/cliente.entity';
+import { Producto } from '../productos/entities/producto.entity';
 
 @Injectable()
 export class OrdenesService {
-  create(createOrdeneDto: CreateOrdeneDto) {
-    return 'This action adds a new ordene';
+  constructor(
+    @InjectRepository(Orden)
+    private ordenRepository: Repository<Orden>,
+    @InjectRepository(Cliente)
+    private clienteRepository: Repository<Cliente>,
+    @InjectRepository(Producto)
+    private productoRepository: Repository<Producto>,
+  ) { }
+
+  async create(dto: CreateOrdenDto): Promise<Orden> {
+    const cliente = await this.clienteRepository.findOne({ where: { id: dto.clienteId } });
+    if (!cliente) throw new NotFoundException('Cliente no encontrado');
+
+    if (!dto.productoIds || dto.productoIds.length === 0) {
+      throw new BadRequestException('Debe incluir al menos un producto');
+    }
+
+    const productos = await this.productoRepository.findByIds(dto.productoIds);
+
+    if (productos.length === 0) {
+      throw new NotFoundException('Productos no encontrados');
+    }
+
+    const montoTotal = productos.reduce((total, prod) => total + Number(prod.precio), 0);
+
+    const orden = this.ordenRepository.create({
+      cliente,
+      productos,
+      montoTotal,
+    });
+
+    return this.ordenRepository.save(orden);
   }
 
-  findAll() {
-    return `This action returns all ordenes`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} ordene`;
-  }
-
-  update(id: number, updateOrdeneDto: UpdateOrdeneDto) {
-    return `This action updates a #${id} ordene`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} ordene`;
+  findAll(): Promise<Orden[]> {
+    return this.ordenRepository.find();
   }
 }
