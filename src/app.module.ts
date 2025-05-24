@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Producto } from './productos/entities/producto.entity';
+import { ProductosModule } from './productos/productos.module';
+import { ClientesModule } from './clientes.module';
 
 @Module({
   imports: [ 
@@ -14,7 +15,8 @@ import { Producto } from './productos/entities/producto.entity';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true, 
     }),
-    TypeOrmModule.forFeature([Producto]),
+    ProductosModule,
+    ClientesModule, // <-- Solo esto necesario
   ],
 })
 export class AppModule {}
