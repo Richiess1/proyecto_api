@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductosModule } from './productos/productos.module';
-import { ClientesModule } from './clientes.module';
+import { ClientesModule } from './clientes/clientes.module';
+import { OrdenesModule } from './ordenes/ordenes.module';
 
 @Module({
   imports: [ 
@@ -16,7 +17,8 @@ import { ClientesModule } from './clientes.module';
       synchronize: true, 
     }),
     ProductosModule,
-    ClientesModule, // <-- Solo esto necesario
+    ClientesModule,
+    OrdenesModule,
   ],
 })
 export class AppModule {}
